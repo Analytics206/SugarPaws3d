@@ -1,4 +1,69 @@
+# 🛠️ SugarPaws3D - Tech Stack Overview
 
+This document outlines the technologies used in the SugarPaws3D website project, including current setup and future plans.
+
+---
+
+## 🔧 Current Stack (MVP/Marketing Site)
+
+| Layer           | Tech                                | Purpose                                 |
+|----------------|-------------------------------------|-----------------------------------------|
+| Frontend       | [Next.js](https://nextjs.org/)      | React framework for static + dynamic pages |
+| Styling        | [Tailwind CSS](https://tailwindcss.com/) | Utility-first CSS framework             |
+| Language       | TypeScript                          | Safer, scalable JavaScript               |
+| Hosting        | GoDaddy (Static HTML upload)        | Simple and affordable web hosting        |
+| Asset Storage  | `public/models/` folder              | 3D model images and assets               |
+
+---
+
+## 🧭 Folder Structure Overview
+
+```yaml
+sugarpaws3d/
+├── public/ # Public static files
+│ └── models/ # 3D model images
+├── src/
+│ ├── app/ # Page routes
+│ ├── components/ # Reusable React components
+│ ├── data/ # JSON data for models
+│ ├── styles/ # Global styles
+│ └── lib/ # (Optional) utilities/helpers
+├── next.config.js # Next.js configuration
+├── tailwind.config.js # Tailwind configuration
+├── package.json # Project metadata and dependencies
+└── tsconfig.json # TypeScript configuration
+
+
+```
+---
+## 🧭 Future Stack Considerations (6–12 months)
+```yaml
+
+
+| Feature Area       | Tech Option(s) Considered                         |
+|--------------------|---------------------------------------------------|
+| Authentication     | OAuth (Google, Microsoft) via Auth providers     |
+| Payments           | Stripe or Patreon API                            |
+| CMS/Model Management | Headless CMS (e.g. Sanity, Strapi) (optional)    |
+| Hosting Upgrade    | Vercel, Netlify, or VPS with CI/CD                |
+| SEO & Analytics    | Next SEO, Google Analytics                        |
+```
+---
+
+## ✅ Goals
+
+- Keep stack simple for static marketing site phase
+- Plan forward for user auth and secure payment integration
+- Remain open to migration from GoDaddy to modern deployment platforms
+
+---
+
+
+
+
+---
+
+# -- MOVE THIS --
 # tech stack( current)
 
 ## ✅ Adjusted Plan: Static-Exported Next.js Site for GoDaddy
