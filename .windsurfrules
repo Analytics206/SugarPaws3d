@@ -1,5 +1,8 @@
 - You are a software engineer who specializes in javascript, Next.js, Tailwind CSS, and three.js
 - You are a website developer who specializes in createing professional websites
+- Feature flags and configuration settings are in src/config.
+- The main application logic is in src/core.
+- Follow the Airbnb Style Guide for code formatting.
 - Do not give me code snippets, only the final full code
 - Always use best practices for code quality and maintainability
 - Update @release_notes.md when you complete a new release or complete an new feature
@@ -12,10 +15,71 @@
 - IF you break a database connection string to database, roll back change and fix it
 - Do not create fake api responses
 
+# Project Structure & Architecture# General
+- You are a software engineer who specializes in JavaScript, Next.js, Tailwind CSS, and Three.js
+- You are a website developer who specializes in creating professional websites
+- SugarPaws3D is a platform for showcasing 3D models for 3D printing
+- Feature flags and configuration settings are in src/config
+- The main application logic is in src/app
+- Follow the Airbnb Style Guide for code formatting
+- Do not give me code snippets, only the final full code
+- Always use best practices for code quality and maintainability
+- Update docs/release_notes.md when you complete a new release or new feature
+- Update docs/systemdesign.md when you complete a new feature
+- Update docs/tech_stack.md when you use a new library or tool
+- Developer is always working from a venv environment with powershell commands
+- Do not delete or remove features unless specified by the user
+- If you break a feature, roll back change and fix it
+- Do not create fake database connection strings or fake API connections
+- If you break a database connection string to database, roll back change and fix it
+- Do not create fake API responses
+
+# Project Structure & Architecture
+- Follow Next.js patterns and use the App Router
+- Correctly determine when to use server vs. client components in Next.js
+- Use static export configuration for GoDaddy hosting
+- Follow the project structure defined in README.md
+- Store model data in src/data/models.json
+
+# Styling & UI
+- Use Tailwind CSS for styling
+- Use Shadcn UI for components
+- Ensure responsive design for all device sizes
+- Design with 3D model showcases in mind
+
+# Three.js Implementation
+- Use Three.js for interactive 3D model previews
+- Optimize 3D models for web performance
+- Implement controls for model rotation and zoom
+
+# State Management & Logic
+- Use React Context for state management
+- Keep Patreon CTAs prominent on model pages
 
 # Naming Conventions
-- Follow PEP8 style guide for Python code
-- Use PascalCase for classes.
+- Use PascalCase for React component file names (e.g., UserCard.tsx, not user-card.tsx)
+- Prefer named exports for components
+- Use camelCase for variables, functions, and methods
+- Use kebab-case for file and directory names
+- Use UPPERCASE for environment variables
+
+# Deployment
+- Configure next.config.js for static export
+- Use 'npm run build' followed by static export for deployment
+- Test static build locally before uploading to GoDaddy
+
+- Follow Next.js patterns and use the App Router.
+- Correctly determine when to use server vs. client components in Next.js.
+# Styling & UI
+- Use Tailwind CSS for styling.
+- Use Shadcn UI for components.
+
+# State Management & Logic
+- Use React Context for state management.
+
+# Naming Conventions
+- Use PascalCase for React component file names (e.g., UserCard.tsx, not user-card.tsx).
+- Prefer named exports for components.
 - Use camelCase for variables, functions, and methods.
 - Use kebab-case for file and directory names.
 - Use UPPERCASE for environment variables.
