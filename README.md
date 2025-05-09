@@ -41,6 +41,20 @@ The project is organized as follows:
 
 ## Getting Started
 
+```bash
+python -m venv venv
+source venv/bin/activate  # or .\venv\Scripts\activate on Windows
+```
+2. Use uv (a fast Python package manager, like Poetry or Pipenv)
+uv is a newer Python tool for dependency management, caching, and creating environments fast. If you're managing any Python tooling for this project (e.g., asset generation), uv can help.
+
+Install it:
+```bash
+pip install uv
+uv pip install -r requirements.txt
+
+```
+
 To get started with the SugarPaws3D website, follow these steps:
 
 1. **Clone the repository**:
