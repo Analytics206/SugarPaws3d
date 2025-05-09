@@ -14,6 +14,61 @@ This document outlines the technologies used in the SugarPaws3D website project,
 | Hosting        | GoDaddy (Static HTML upload)        | Simple and affordable web hosting        |
 | Asset Storage  | `public/models/` folder              | 3D model images and assets               |
 
+## 🎨 Theme Implementation Libraries
+
+| Library/Framework | Purpose | Implementation Details |
+|------------------|---------|------------------------|
+| [Tailwind CSS](https://tailwindcss.com/) | Core styling framework | Configure theme colors in `tailwind.config.js` |
+| [shadcn/ui](https://ui.shadcn.com/) | UI component library | Re-usable components with our custom theme |
+| [Three.js](https://threejs.org/) | 3D model rendering | Interactive model viewer with theme-colored environment |
+| [Framer Motion](https://www.framer.com/motion/) | Animation library | Implement page transitions and hover effects |
+| [next-themes](https://github.com/pacocoursey/next-themes) | Theme management | For potential light/dark mode support |
+| [tailwindcss-animate](https://github.com/jamiebuilds/tailwindcss-animate) | Animation utilities | For subtle UI animations |
+| [use-sound](https://github.com/joshwcomeau/use-sound) | Sound effects | Optional playful interaction sounds |
+| [Google Fonts](https://fonts.google.com/) | Typography | For Fredoka One, Nunito, or similar fonts |
+
+### Color Theme Configuration
+Add to `tailwind.config.js`:
+
+```js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        // Primary Colors
+        "sugar-pink": "#FF6BA9",
+        "berry-blue": "#8BCBF9", 
+        "cream": "#FFF6E6",
+        
+        // Secondary Colors
+        "chocolate": "#5E2C15",
+        "cherry-red": "#E53E51",
+        "star-yellow": "#FFE66D",
+        
+        // Neutral Colors
+        "dark-paw": "#333333",
+        "light-paw": "#777777",
+        "snow-white": "#FFFFFF",
+      },
+      borderRadius: {
+        'xl': '1rem',
+        '2xl': '1.5rem',
+        '3xl': '2rem',
+      },
+      boxShadow: {
+        'soft': '0 4px 14px 0 rgba(0, 0, 0, 0.1)',
+        'candy': '0 8px 30px rgba(255, 107, 169, 0.2)',
+      },
+      fontFamily: {
+        'heading': ['Fredoka One', 'Baloo 2', 'system-ui'],
+        'body': ['Nunito', 'Quicksand', 'sans-serif'],
+        'accent': ['Caveat', 'cursive'],
+      },
+    }
+  }
+}
+```
+
 ---
 
 ## 🧭 Folder Structure Overview
@@ -103,7 +158,7 @@ npm run export
 ```
 * This will output a out/ directory with static HTML, CSS, and JS.
 - Upload to GoDaddy
-- Use FTP or GoDaddy’s file manager
+- Use FTP or GoDaddy's file manager
 - Upload everything in the out/ folder to your site's public directory (public_html/)
 
 * Deploy to GoDaddy

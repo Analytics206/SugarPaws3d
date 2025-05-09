@@ -1,0 +1,33 @@
+{
+  "colors": {
+    "primary": {
+      "sugar-pink": "#FF6BA9",
+      "berry-blue": "#8BCBF9",
+      "cream": "#FFF6E6"
+    },
+    "secondary": {
+      "chocolate": "#5E2C15",
+      "cherry-red": "#E53E51",
+      "star-yellow": "#FFE66D"
+    },
+    "neutral": {
+      "dark-paw": "#333333",
+      "light-paw": "#777777",
+      "snow-white": "#FFFFFF"
+    }
+  },
+  "borderRadius": {
+    "xl": "1rem",
+    "2xl": "1.5rem",
+    "3xl": "2rem"
+  },
+  "boxShadow": {
+    "soft": "0 4px 14px 0 rgba(0, 0, 0, 0.1)",
+    "candy": "0 8px 30px rgba(255, 107, 169, 0.2)"
+  },
+  "fontFamily": {
+    "heading": ["Fredoka One", "Baloo 2", "system-ui"],
+    "body": ["Nunito", "Quicksand", "sans-serif"],
+    "accent": ["Caveat", "cursive"]
+  }
+}

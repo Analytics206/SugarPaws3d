@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SugarPaws3D Theme Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&family=Caveat:wght@400;700&family=Fredoka:wght@300;400;700&family=Nunito:wght@300;400;700&family=Quicksand:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default values that will be overridden when the config loads */
+            --sugar-pink: #FF6BA9;
+            --berry-blue: #8BCBF9;
+            --cream: #FFF6E6;
+            --chocolate: #5E2C15;
+            --cherry-red: #E53E51;
+            --star-yellow: #FFE66D;
+            --dark-paw: #333333;
+            --light-paw: #777777;
+            --snow-white: #FFFFFF;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--cream);
+            color: var(--dark-paw);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Fredoka', 'Baloo 2', system-ui;
+            color: var(--sugar-pink);
+        }
+        
+        .accent-text {
+            font-family: 'Caveat', cursive;
+            font-size: 1.4em;
+        }
+        
+        .color-section {
+            margin-bottom: 3rem;
+        }
+        
+        .colors-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .color-card {
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .color-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(255, 107, 169, 0.2);
+        }
+        
+        .color-display {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .color-info {
+            padding: 1rem;
+            background-color: var(--snow-white);
+        }
+        
+        .color-name {
+            margin: 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-transform: capitalize;
+        }
+        
+        .color-hex {
+            font-family: monospace;
+            color: var(--light-paw);
+            margin: 5px 0 0;
+        }
+        
+        .shadow-demo {
+            margin-top: 3rem;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .shadow-card {
+            width: 200px;
+            height: 200px;
+            background-color: var(--snow-white);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .soft-shadow {
+            box-shadow: var(--soft-shadow);
+        }
+        
+        .candy-shadow {
+            box-shadow: var(--candy-shadow);
+        }
+        
+        .font-sample {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: var(--snow-white);
+            border-radius: 1rem;
+            box-shadow: var(--soft-shadow);
+        }
+        
+        .button-section {
+            margin-top: 3rem;
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .button-primary {
+            background-color: var(--sugar-pink);
+            color: white;
+        }
+        
+        .button-secondary {
+            background-color: var(--cherry-red);
+            color: white;
+        }
+        
+        .button-accent {
+            background-color: var(--star-yellow);
+            color: var(--chocolate);
+        }
+        
+        .button-neutral {
+            background-color: var(--light-paw);
+            color: white;
+        }
+        
+        .border-radius-section {
+            margin-top: 3rem;
+        }
+        
+        .radius-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .radius-card {
+            width: 150px;
+            height: 150px;
+            background-color: var(--berry-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .reload-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--chocolate);
+            color: white;
+            padding: 1rem;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            border: none;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .reload-button:hover {
+            transform: rotate(180deg);
+        }
+        
+        #config-path {
+            margin-top: 0.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--light-paw);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SugarPaws3D Theme Preview</h1>
+        <div id="config-path">Loading configuration from: theme_config.json</div>
+    </header>
+    
+    <main>
+        <section class="color-section">
+            <h2>Primary Colors</h2>
+            <div class="colors-container" id="primary-colors">
+                <!-- Primary colors will be populated here -->
+            </div>
+        </section>
+        
+        <section class="color-section">
+            <h2>Secondary Colors</h2>
+            <div class="colors-container" id="secondary-colors">
+                <!-- Secondary colors will be populated here -->
+            </div>
+        </section>
+        
+        <section class="color-section">
+            <h2>Neutral Colors</h2>
+            <div class="colors-container" id="neutral-colors">
+                <!-- Neutral colors will be populated here -->
+            </div>
+        </section>
+        
+        <section class="shadow-section">
+            <h2>Shadows</h2>
+            <div class="shadow-demo">
+                <div class="shadow-card soft-shadow">
+                    <p>Soft Shadow</p>
+                </div>
+                <div class="shadow-card candy-shadow">
+                    <p>Candy Shadow</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="typography-section">
+            <h2>Typography</h2>
+            <div class="font-sample">
+                <h1 style="margin-top:0">Heading 1: Fredoka / Baloo 2</h1>
+                <h2>Heading 2: Showing our playful style</h2>
+                <p>Body text using <strong>Nunito</strong> or <strong>Quicksand</strong>: This is a sample paragraph showing how the body text looks in our theme. The copy should be easy to read while maintaining a friendly, approachable feel.</p>
+                <p class="accent-text">This is our accent text using Caveat. Perfect for notes, special callouts, or decorative elements!</p>
+            </div>
+        </section>
+        
+        <section class="button-section">
+            <h2>Buttons</h2>
+            <div class="button-container">
+                <button class="button button-primary">Primary Button</button>
+                <button class="button button-secondary">Secondary Button</button>
+                <button class="button button-accent">Accent Button</button>
+                <button class="button button-neutral">Neutral Button</button>
+            </div>
+        </section>
+        
+        <section class="border-radius-section">
+            <h2>Border Radius</h2>
+            <div class="radius-container">
+                <div class="radius-card" id="radius-xl">xl</div>
+                <div class="radius-card" id="radius-2xl">2xl</div>
+                <div class="radius-card" id="radius-3xl">3xl</div>
+            </div>
+        </section>
+    </main>
+    
+    <button class="reload-button" onclick="loadConfig()">↻</button>
+    
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+        });
+        
+        function loadConfig() {
+            fetch('theme_config.json')
+                .then(response => response.json())
+                .then(config => {
+                    applyConfig(config);
+                })
+                .catch(error => {
+                    console.error('Error loading config:', error);
+                    alert('Error loading theme configuration. Check the console for details.');
+                });
+        }
+        
+        function applyConfig(config) {
+            // Apply colors
+            applyColors(config.colors);
+            
+            // Apply border radius
+            applyBorderRadius(config.borderRadius);
+            
+            // Apply box shadows
+            applyBoxShadows(config.boxShadow);
+            
+            // Apply font families (already applied via CSS import)
+        }
+        
+        function applyColors(colors) {
+            // Clear existing color cards
+            document.getElementById('primary-colors').innerHTML = '';
+            document.getElementById('secondary-colors').innerHTML = '';
+            document.getElementById('neutral-colors').innerHTML = '';
+            
+            // Create color cards for each category
+            createColorCards('primary', colors.primary);
+            createColorCards('secondary', colors.secondary);
+            createColorCards('neutral', colors.neutral);
+            
+            // Set CSS variables for all colors
+            const root = document.documentElement;
+            
+            for (const category in colors) {
+                for (const color in colors[category]) {
+                    root.style.setProperty(`--${color}`, colors[category][color]);
+                }
+            }
+        }
+        
+        function createColorCards(category, colors) {
+            const container = document.getElementById(`${category}-colors`);
+            
+            for (const colorName in colors) {
+                const colorValue = colors[colorName];
+                const card = document.createElement('div');
+                card.className = 'color-card';
+                
+                const displayEl = document.createElement('div');
+                displayEl.className = 'color-display';
+                displayEl.style.backgroundColor = colorValue;
+                displayEl.textContent = getReadableTextColor(colorValue) === 'white' ? 'Light Text' : 'Dark Text';
+                displayEl.style.color = getReadableTextColor(colorValue);
+                
+                const infoEl = document.createElement('div');
+                infoEl.className = 'color-info';
+                
+                const nameEl = document.createElement('h3');
+                nameEl.className = 'color-name';
+                nameEl.textContent = formatColorName(colorName);
+                
+                const hexEl = document.createElement('p');
+                hexEl.className = 'color-hex';
+                hexEl.textContent = colorValue;
+                
+                infoEl.appendChild(nameEl);
+                infoEl.appendChild(hexEl);
+                
+                card.appendChild(displayEl);
+                card.appendChild(infoEl);
+                
+                container.appendChild(card);
+            }
+        }
+        
+        function formatColorName(name) {
+            return name.replace(/-/g, ' ');
+        }
+        
+        function getReadableTextColor(bgColor) {
+            // Convert hex to RGB
+            let r = 0, g = 0, b = 0;
+            
+            if (bgColor.length === 7) {
+                r = parseInt(bgColor.substr(1, 2), 16);
+                g = parseInt(bgColor.substr(3, 2), 16);
+                b = parseInt(bgColor.substr(5, 2), 16);
+            } else if (bgColor.length === 4) {
+                r = parseInt(bgColor.substr(1, 1) + bgColor.substr(1, 1), 16);
+                g = parseInt(bgColor.substr(2, 1) + bgColor.substr(2, 1), 16);
+                b = parseInt(bgColor.substr(3, 1) + bgColor.substr(3, 1), 16);
+            }
+            
+            // YIQ formula to determine brightness
+            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            return (yiq >= 160) ? '#333333' : 'white';
+        }
+        
+        function applyBorderRadius(radiusConfig) {
+            document.getElementById('radius-xl').style.borderRadius = radiusConfig.xl;
+            document.getElementById('radius-2xl').style.borderRadius = radiusConfig['2xl'];
+            document.getElementById('radius-3xl').style.borderRadius = radiusConfig['3xl'];
+        }
+        
+        function applyBoxShadows(shadowConfig) {
+            document.documentElement.style.setProperty('--soft-shadow', shadowConfig.soft);
+            document.documentElement.style.setProperty('--candy-shadow', shadowConfig.candy);
+        }
+    </script>
+</body>
+</html>
