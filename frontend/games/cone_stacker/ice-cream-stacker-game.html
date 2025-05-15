@@ -165,6 +165,11 @@
         const debugDisplay = document.getElementById('debug-display');
         const countdownOverlay = document.getElementById('countdown-overlay');
 
+        // Sound effects
+        const splatSound = new Audio('sounds/splat.wav');
+        const blahSound = new Audio('sounds/blah.mp3');
+        const beepSound = new Audio('sounds/beep.wav');
+
         // Game variables
         let gameActive = false;
         let score = 0;
@@ -180,7 +185,7 @@
         let scoopsDropped = 0; // Counter for scoops dropped per level
         let totalScoopsPerLevel = 10; // Total scoops to drop per level
         let countdownActive = false;
-        let countdownValue = 3;
+        let countdownValue = 2;
         
         // Create cone object
         const cone = {
@@ -299,9 +304,13 @@
             // Ensure the game is completely paused during countdown
             gameActive = false;
             countdownActive = true;
-            countdownValue = 3;
+            countdownValue = 2;
             countdownOverlay.textContent = countdownValue;
             countdownOverlay.style.display = 'flex';
+            
+            // Play beep sound at start of countdown
+            beepSound.currentTime = 0;
+            beepSound.play().catch(e => console.log('Error playing beep sound:', e));
             
             // Clear any existing falling objects
             scoops = [];
@@ -310,6 +319,13 @@
             // Used to update the visual countdown
             const countInterval = setInterval(() => {
                 countdownValue--;
+                countdownOverlay.textContent = countdownValue;
+                
+                // Play beep sound only for counts 2 and 1 (not for 0)
+                if (countdownValue > 0) {
+                    beepSound.currentTime = 0;
+                    beepSound.play().catch(e => console.log('Error playing beep sound:', e));
+                }
                 
                 if (countdownValue <= 0) {
                     clearInterval(countInterval);
@@ -329,8 +345,6 @@
                     }
                     return;
                 }
-                
-                countdownOverlay.textContent = countdownValue;
             }, 1000);
         }
 
@@ -706,6 +720,10 @@
                     cone.stackHeight += scoop.radius * 1.5;
                     scoops.splice(i, 1);
                     
+                    // Play splat sound when a scoop is caught
+                    splatSound.currentTime = 0; // Reset sound to start
+                    splatSound.play().catch(e => console.log('Error playing sound:', e));
+                    
                     // Update score - each scoop worth exactly 10 points
                     score += 10;
                     updateScore();
@@ -810,6 +828,10 @@
                     
                     // Non-scoop is caught!
                     obstacles.splice(i, 1);
+                    
+                    // Play blah sound when a non-scoop is caught
+                    blahSound.currentTime = 0; // Reset sound to start
+                    blahSound.play().catch(e => console.log('Error playing sound:', e));
                     
                     // Increment non-scoop counter
                     caughtNonScoops++;
