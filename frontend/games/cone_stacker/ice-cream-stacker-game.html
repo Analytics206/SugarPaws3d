@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ice Cream Stacker</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB, #1E90FF);
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            border: 4px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        #game-container {
+            position: relative;
+        }
+        #menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .menu-item {
+            background-color: #FFD700;
+            color: #333;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 25px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            border: 3px solid #FF6347;
+        }
+        .menu-item:hover {
+            background-color: #FF6347;
+            color: white;
+            transform: scale(1.1);
+        }
+        #game-title {
+            font-size: 36px;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+        }
+        #score-display {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        #level-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        #final-score {
+            font-size: 36px;
+            color: white;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="score-display">Score: 0</div>
+        <div id="level-display">Level: 1</div>
+        <div id="menu">
+            <h1 id="game-title">Ice Cream Stacker</h1>
+            <div class="menu-item" id="start-button">Start Game</div>
+            <div class="menu-item" id="instructions-button">Instructions</div>
+        </div>
+        <div id="game-over">
+            <h1 id="game-title">Game Over!</h1>
+            <div id="final-score">Score: 0</div>
+            <div class="menu-item" id="restart-button">Play Again</div>
+        </div>
+    </div>
+
+    <script>
+        // Game setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const menu = document.getElementById('menu');
+        const startButton = document.getElementById('start-button');
+        const instructionsButton = document.getElementById('instructions-button');
+        const gameOverScreen = document.getElementById('game-over');
+        const restartButton = document.getElementById('restart-button');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const scoreDisplay = document.getElementById('score-display');
+        const levelDisplay = document.getElementById('level-display');
+
+        // Game variables
+        let gameActive = false;
+        let score = 0;
+        let level = 1;
+        let lives = 3;
+        let scoopSpeed = 2;
+        let scoopSpawnRate = 1500; // milliseconds
+        let lastScoopTime = 0;
+        let lastObstacleTime = 0;
+        let obstacleSpawnRate = 3000; // milliseconds
+        let caughtNonScoops = 0; // Counter for caught non-scoop objects
+        
+        // Create cone object
+        const cone = {
+            x: canvas.width / 2,
+            y: canvas.height - 100,
+            width: 70,
+            height: 100,
+            speed: 8,
+            scoopStack: [], // Stack of caught scoops
+            maxScoops: 10,  // Maximum number of scoops before winning
+            stackHeight: 0  // Current height of the stack
+        };
+
+        // Ice cream flavors with colors
+        const flavors = [
+            { name: 'vanilla', color: '#FFF9E3' },
+            { name: 'chocolate', color: '#7B3F00' },
+            { name: 'strawberry', color: '#FF9999' },
+            { name: 'mint', color: '#98FB98' },
+            { name: 'blueberry', color: '#ADD8E6' }
+        ];
+
+        // Arrays to store falling scoops and obstacles
+        let scoops = [];
+        let obstacles = [];
+        
+        // Non-scoop objects
+        const obstacleTypes = [
+            { name: 'rock', color: '#808080', shape: 'triangle' },
+            { name: 'broccoli', color: '#228B22', shape: 'polygon' },
+            { name: 'soap', color: '#87CEEB', shape: 'rectangle' }
+        ];
+
+        // Keyboard controls
+        const keys = {
+            ArrowLeft: false,
+            ArrowRight: false
+        };
+
+        // Listen for keyboard inputs
+        window.addEventListener('keydown', (e) => {
+            if (e.key in keys) {
+                keys[e.key] = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key in keys) {
+                keys[e.key] = false;
+            }
+        });
+
+        // Event listeners for buttons
+        startButton.addEventListener('click', startGame);
+        instructionsButton.addEventListener('click', showInstructions);
+        restartButton.addEventListener('click', restartGame);
+
+        // Start the game
+        function startGame() {
+            menu.style.display = 'none';
+            gameActive = true;
+            score = 0;
+            level = 1;
+            lives = 3;
+            scoopSpeed = 2;
+            scoopSpawnRate = 1500;
+            obstacleSpawnRate = 3000;
+            cone.scoopStack = [];
+            cone.stackHeight = 0;
+            scoops = [];
+            obstacles = [];
+            caughtNonScoops = 0;
+            updateScore();
+            updateLevel();
+            
+            // Start the game loop
+            requestAnimationFrame(gameLoop);
+        }
+
+        function showInstructions() {
+            alert("Instructions: Use the left and right arrow keys to move the ice cream cone. Catch falling ice cream scoops to stack them on your cone. Avoid non-ice cream objects (rocks, broccoli, soap)! If you catch 3 non-scoops, it's game over. Be careful! Don't miss too many scoops or you'll lose lives. Good luck!");
+        }
+
+        function restartGame() {
+            gameOverScreen.style.display = 'none';
+            startGame();
+        }
+
+        function endGame() {
+            gameActive = false;
+            finalScoreDisplay.textContent = `Score: ${score}`;
+            gameOverScreen.style.display = 'flex';
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        function updateLevel() {
+            levelDisplay.textContent = `Level: ${level}`;
+        }
+
+        function createScoop() {
+            const randomFlavor = flavors[Math.floor(Math.random() * flavors.length)];
+            const scoop = {
+                x: Math.random() * (canvas.width - 50) + 25,
+                y: -30,
+                radius: 25,
+                flavor: randomFlavor.name,
+                color: randomFlavor.color,
+                speed: scoopSpeed + Math.random() * 1,
+                type: 'scoop'
+            };
+            scoops.push(scoop);
+        }
+        
+        function createObstacle() {
+            const randomObstacle = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+            const obstacle = {
+                x: Math.random() * (canvas.width - 50) + 25,
+                y: -30,
+                radius: 20,
+                name: randomObstacle.name,
+                color: randomObstacle.color,
+                shape: randomObstacle.shape,
+                speed: scoopSpeed + Math.random() * 1.5,
+                type: 'obstacle',
+                rotation: 0
+            };
+            obstacles.push(obstacle);
+        }
+
+        function drawCone() {
+            // Draw the cone
+            ctx.beginPath();
+            ctx.moveTo(cone.x, cone.y);
+            ctx.lineTo(cone.x - cone.width / 2, cone.y + cone.height);
+            ctx.lineTo(cone.x + cone.width / 2, cone.y + cone.height);
+            ctx.closePath();
+            ctx.fillStyle = '#D2691E';
+            ctx.fill();
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Draw waffle pattern on cone
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                ctx.moveTo(cone.x - cone.width / 2 + i * cone.width / 5, cone.y + cone.height);
+                ctx.lineTo(cone.x, cone.y + i * cone.height / 5);
+            }
+            for (let i = 0; i < 6; i++) {
+                ctx.moveTo(cone.x + cone.width / 2 - i * cone.width / 5, cone.y + cone.height);
+                ctx.lineTo(cone.x, cone.y + i * cone.height / 5);
+            }
+            ctx.strokeStyle = '#A0522D';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Draw stacked scoops
+            let stackY = cone.y - 10;
+            for (let i = 0; i < cone.scoopStack.length; i++) {
+                const scoop = cone.scoopStack[i];
+                
+                // Draw scoop shadow
+                ctx.beginPath();
+                ctx.arc(cone.x, stackY, scoop.radius + 2, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fill();
+                
+                // Draw scoop
+                ctx.beginPath();
+                ctx.arc(cone.x, stackY, scoop.radius, 0, Math.PI * 2);
+                ctx.fillStyle = scoop.color;
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Add sprinkles for fun
+                for (let j = 0; j < 8; j++) {
+                    const sprinkleX = cone.x + (Math.random() - 0.5) * scoop.radius * 1.5;
+                    const sprinkleY = stackY + (Math.random() - 0.5) * scoop.radius * 1.5;
+                    const sprinkleColors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF'];
+                    ctx.beginPath();
+                    ctx.rect(sprinkleX, sprinkleY, 3, 1.5);
+                    ctx.fillStyle = sprinkleColors[Math.floor(Math.random() * sprinkleColors.length)];
+                    ctx.fill();
+                }
+                
+                stackY -= scoop.radius * 1.5;
+            }
+        }
+
+        function drawFallingObjects() {
+            // Draw scoops
+            scoops.forEach(scoop => {
+                // Draw scoop shadow
+                ctx.beginPath();
+                ctx.arc(scoop.x, scoop.y + 5, scoop.radius + 2, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fill();
+                
+                // Draw scoop
+                ctx.beginPath();
+                ctx.arc(scoop.x, scoop.y, scoop.radius, 0, Math.PI * 2);
+                ctx.fillStyle = scoop.color;
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Add sprinkles for fun
+                for (let j = 0; j < 5; j++) {
+                    const sprinkleX = scoop.x + (Math.random() - 0.5) * scoop.radius * 1.5;
+                    const sprinkleY = scoop.y + (Math.random() - 0.5) * scoop.radius * 1.5;
+                    const sprinkleColors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF'];
+                    ctx.beginPath();
+                    ctx.rect(sprinkleX, sprinkleY, 3, 1.5);
+                    ctx.fillStyle = sprinkleColors[Math.floor(Math.random() * sprinkleColors.length)];
+                    ctx.fill();
+                }
+            });
+            
+            // Draw obstacles
+            obstacles.forEach(obstacle => {
+                // Save the current state
+                ctx.save();
+                
+                // Translate to obstacle position for rotation
+                ctx.translate(obstacle.x, obstacle.y);
+                ctx.rotate(obstacle.rotation);
+                
+                // Draw shadow
+                ctx.beginPath();
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                
+                if (obstacle.shape === 'triangle') {
+                    ctx.beginPath();
+                    ctx.moveTo(0, -obstacle.radius);
+                    ctx.lineTo(-obstacle.radius, obstacle.radius);
+                    ctx.lineTo(obstacle.radius, obstacle.radius);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (obstacle.shape === 'rectangle') {
+                    ctx.fillRect(-obstacle.radius, -obstacle.radius, obstacle.radius * 2, obstacle.radius * 2);
+                } else if (obstacle.shape === 'polygon') {
+                    // Draw a polygon (broccoli shape)
+                    ctx.beginPath();
+                    ctx.moveTo(0, -obstacle.radius);
+                    for (let i = 0; i < 7; i++) {
+                        const angle = (i / 7) * Math.PI * 2;
+                        const x = Math.cos(angle) * obstacle.radius;
+                        const y = Math.sin(angle) * obstacle.radius;
+                        ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                
+                // Draw the obstacle
+                ctx.fillStyle = obstacle.color;
+                
+                if (obstacle.shape === 'triangle') {
+                    ctx.beginPath();
+                    ctx.moveTo(0, -obstacle.radius);
+                    ctx.lineTo(-obstacle.radius, obstacle.radius);
+                    ctx.lineTo(obstacle.radius, obstacle.radius);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                } else if (obstacle.shape === 'rectangle') {
+                    ctx.fillRect(-obstacle.radius, -obstacle.radius, obstacle.radius * 2, obstacle.radius * 2);
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(-obstacle.radius, -obstacle.radius, obstacle.radius * 2, obstacle.radius * 2);
+                } else if (obstacle.shape === 'polygon') {
+                    // Draw a polygon (broccoli shape)
+                    ctx.beginPath();
+                    ctx.moveTo(0, -obstacle.radius);
+                    for (let i = 0; i < 7; i++) {
+                        const angle = (i / 7) * Math.PI * 2;
+                        const x = Math.cos(angle) * obstacle.radius;
+                        const y = Math.sin(angle) * obstacle.radius;
+                        ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+                
+                // Restore the state
+                ctx.restore();
+                
+                // Update rotation for next frame
+                obstacle.rotation += 0.02;
+            });
+        }
+
+        function drawLives() {
+            // Draw hearts for lives
+            for (let i = 0; i < lives; i++) {
+                // Draw heart shape
+                const heartX = 50 + i * 40;
+                const heartY = 50;
+                const heartSize = 15;
+                
+                ctx.fillStyle = '#FF0000';
+                ctx.beginPath();
+                ctx.moveTo(heartX, heartY);
+                ctx.bezierCurveTo(heartX, heartY - heartSize / 2, heartX - heartSize, heartY - heartSize / 2, heartX - heartSize, heartY);
+                ctx.bezierCurveTo(heartX - heartSize, heartY + heartSize / 1.5, heartX, heartY + heartSize, heartX, heartY + heartSize);
+                ctx.bezierCurveTo(heartX, heartY + heartSize, heartX + heartSize, heartY + heartSize / 1.5, heartX + heartSize, heartY);
+                ctx.bezierCurveTo(heartX + heartSize, heartY - heartSize / 2, heartX, heartY - heartSize / 2, heartX, heartY);
+                ctx.fill();
+            }
+            
+            // Draw non-scoop warning indicators
+            ctx.font = '16px Arial';
+            ctx.fillStyle = 'white';
+            ctx.fillText('Non-Scoops:', canvas.width - 190, 50);
+            
+            for (let i = 0; i < 3; i++) {
+                const x = canvas.width - 100 + i * 30;
+                const y = 50;
+                const radius = 10;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = '#FF6347';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                if (i < caughtNonScoops) {
+                    ctx.fillStyle = '#FF6347';
+                    ctx.fill();
+                }
+            }
+        }
+
+        function drawBackground() {
+            // Sky gradient
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, '#87CEEB');
+            skyGradient.addColorStop(1, '#1E90FF');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            // Cloud 1
+            drawCloud(100, 80, 70);
+            // Cloud 2
+            drawCloud(400, 150, 100);
+            // Cloud 3
+            drawCloud(700, 50, 60);
+            
+            // Draw ground
+            const groundGradient = ctx.createLinearGradient(0, canvas.height - 50, 0, canvas.height);
+            groundGradient.addColorStop(0, '#8B4513');
+            groundGradient.addColorStop(1, '#654321');
+            ctx.fillStyle = groundGradient;
+            ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+            
+            // Draw some grass
+            ctx.fillStyle = '#228B22';
+            for (let i = 0; i < canvas.width; i += 10) {
+                const grassHeight = Math.random() * 10 + 5;
+                ctx.fillRect(i, canvas.height - 50 - grassHeight, 3, grassHeight);
+            }
+        }
+
+        function drawCloud(x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+            ctx.arc(x + size / 2, y - size / 4, size / 3, 0, Math.PI * 2);
+            ctx.arc(x + size, y, size / 2, 0, Math.PI * 2);
+            ctx.arc(x + size / 4, y + size / 4, size / 3, 0, Math.PI * 2);
+            ctx.arc(x + size * 3/4, y + size / 4, size / 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function gameLoop(timestamp) {
+            if (!gameActive) return;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background
+            drawBackground();
+            
+            // Move the cone based on keyboard input
+            if (keys.ArrowLeft && cone.x > cone.width / 2) {
+                cone.x -= cone.speed;
+            }
+            if (keys.ArrowRight && cone.x < canvas.width - cone.width / 2) {
+                cone.x += cone.speed;
+            }
+            
+            // Spawn new scoops
+            if (timestamp - lastScoopTime > scoopSpawnRate) {
+                createScoop();
+                lastScoopTime = timestamp;
+            }
+            
+            // Spawn new obstacles
+            if (timestamp - lastObstacleTime > obstacleSpawnRate) {
+                createObstacle();
+                lastObstacleTime = timestamp;
+            }
+            
+            // Update and check scoop positions
+            for (let i = scoops.length - 1; i >= 0; i--) {
+                const scoop = scoops[i];
+                scoop.y += scoop.speed;
+                
+                // Check if scoop is caught by cone
+                const coneTopY = cone.y - cone.stackHeight;
+                if (scoop.y + scoop.radius > coneTopY - 10 && 
+                    scoop.y - scoop.radius < coneTopY + 10 && 
+                    Math.abs(scoop.x - cone.x) < cone.width / 2) {
+                    
+                    // Scoop is caught!
+                    cone.scoopStack.push(scoop);
+                    cone.stackHeight += scoop.radius * 1.5;
+                    scoops.splice(i, 1);
+                    
+                    // Update score
+                    score += 10 * level;
+                    updateScore();
+                    
+                    // Check for level completion
+                    if (cone.scoopStack.length >= cone.maxScoops) {
+                        level++;
+                        updateLevel();
+                        scoopSpeed += 0.5;
+                        scoopSpawnRate = Math.max(300, scoopSpawnRate - 200);
+                        obstacleSpawnRate = Math.max(1000, obstacleSpawnRate - 300);
+                        
+                        // Reset cone stack for next level
+                        cone.scoopStack = [];
+                        cone.stackHeight = 0;
+                        
+                        // Reset non-scoop counter when leveling up
+                        caughtNonScoops = 0;
+                        
+                        // Show level up message
+                        alert(`Level ${level-1} complete! Moving to Level ${level}`);
+                    }
+                    
+                    // Continue to next scoop
+                    continue;
+                }
+                
+                // Check if scoop falls off bottom
+                if (scoop.y - scoop.radius > canvas.height) {
+                    scoops.splice(i, 1);
+                    lives--;
+                    
+                    if (lives <= 0) {
+                        endGame();
+                        return;
+                    }
+                }
+            }
+            
+            // Update and check obstacle positions
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obstacle = obstacles[i];
+                obstacle.y += obstacle.speed;
+                
+                // Check if obstacle is caught by cone
+                const coneTopY = cone.y - cone.stackHeight;
+                if (obstacle.y + obstacle.radius > coneTopY - 10 && 
+                    obstacle.y - obstacle.radius < coneTopY + 10 && 
+                    Math.abs(obstacle.x - cone.x) < cone.width / 2) {
+                    
+                    // Non-scoop is caught!
+                    obstacles.splice(i, 1);
+                    
+                    // Increment non-scoop counter
+                    caughtNonScoops++;
+                    
+                    // Check if game over from non-scoops
+                    if (caughtNonScoops >= 3) {
+                        endGame();
+                        return;
+                    }
+                    
+                    // Continue to next obstacle
+                    continue;
+                }
+                
+                // Check if obstacle falls off bottom
+                if (obstacle.y - obstacle.radius > canvas.height) {
+                    obstacles.splice(i, 1);
+                }
+            }
+            
+            // Draw game elements
+            drawCone();
+            drawFallingObjects();
+            drawLives();
+            
+            // Continue game loop
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initial draw of menu screen
+        drawBackground();
+    </script>
+</body>
+</html>
