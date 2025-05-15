@@ -76,6 +76,41 @@
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
+        #debug-display {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 14px;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-width: 400px;
+            z-index: 5;
+        }
+        #countdown-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 15;
+            font-size: 120px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8);
+            display: none;
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
         #game-over {
             position: absolute;
             top: 0;
@@ -101,6 +136,8 @@
         <canvas id="gameCanvas" width="800" height="600"></canvas>
         <div id="score-display">Score: 0</div>
         <div id="level-display">Level: 1</div>
+        <div id="debug-display">Debug info will appear here</div>
+        <div id="countdown-overlay">3</div>
         <div id="menu">
             <h1 id="game-title">Ice Cream Stacker</h1>
             <div class="menu-item" id="start-button">Start Game</div>
@@ -125,18 +162,25 @@
         const finalScoreDisplay = document.getElementById('final-score');
         const scoreDisplay = document.getElementById('score-display');
         const levelDisplay = document.getElementById('level-display');
+        const debugDisplay = document.getElementById('debug-display');
+        const countdownOverlay = document.getElementById('countdown-overlay');
 
         // Game variables
         let gameActive = false;
         let score = 0;
         let level = 1;
+        // No limit to levels
         let lives = 3;
-        let scoopSpeed = 2;
-        let scoopSpawnRate = 1500; // milliseconds
+        let scoopSpeed = 1; // Initial speed for level 1
+        let scoopSpawnRate = 1500; // milliseconds - Initial spawn rate for level 1
         let lastScoopTime = 0;
         let lastObstacleTime = 0;
         let obstacleSpawnRate = 3000; // milliseconds
         let caughtNonScoops = 0; // Counter for caught non-scoop objects
+        let scoopsDropped = 0; // Counter for scoops dropped per level
+        let totalScoopsPerLevel = 10; // Total scoops to drop per level
+        let countdownActive = false;
+        let countdownValue = 3;
         
         // Create cone object
         const cone = {
@@ -144,10 +188,13 @@
             y: canvas.height - 100,
             width: 70,
             height: 100,
-            speed: 8,
+            speed: 7.2, // Reduced by 10%
             scoopStack: [], // Stack of caught scoops
             maxScoops: 10,  // Maximum number of scoops before winning
-            stackHeight: 0  // Current height of the stack
+            stackHeight: 0,  // Current height of the stack
+            resetPosition: function() {
+                this.x = canvas.width / 2;
+            }
         };
 
         // Ice cream flavors with colors
@@ -173,7 +220,22 @@
         // Keyboard controls
         const keys = {
             ArrowLeft: false,
-            ArrowRight: false
+            ArrowRight: false,
+            reset: function() {
+                this.ArrowLeft = false;
+                this.ArrowRight = false;
+            }
+        };
+        
+        // Keep track of levels passed for debugging
+        const gameHistory = {
+            levelsCompleted: 0,
+            maxLevelReached: 0,
+            recordLevel: function() {
+                this.levelsCompleted++;
+                this.maxLevelReached = Math.max(this.maxLevelReached, level);
+                console.log(`Level history: Completed ${this.levelsCompleted} levels, max level reached: ${this.maxLevelReached}`);
+            }
         };
 
         // Listen for keyboard inputs
@@ -197,38 +259,99 @@
         // Start the game
         function startGame() {
             menu.style.display = 'none';
-            gameActive = true;
             score = 0;
-            level = 1;
+            level = 1; // Start at level 1
             lives = 3;
-            scoopSpeed = 2;
-            scoopSpawnRate = 1500;
+            scoopSpeed = 1; // Reset to initial speed
+            scoopSpawnRate = 1500; // Reset to initial spawn rate
             obstacleSpawnRate = 3000;
             cone.scoopStack = [];
             cone.stackHeight = 0;
+            cone.resetPosition();
+            keys.reset();
             scoops = [];
             obstacles = [];
             caughtNonScoops = 0;
+            scoopsDropped = 0;
+            console.log("Game started. Level: " + level);
             updateScore();
             updateLevel();
             
-            // Start the game loop
-            requestAnimationFrame(gameLoop);
+            // Start countdown before beginning the game
+            startCountdown(() => {
+                console.log("Initial countdown complete, starting game");
+                gameActive = true;
+                // Explicitly call game loop to start the game
+                requestAnimationFrame(gameLoop);
+            });
         }
 
         function showInstructions() {
-            alert("Instructions: Use the left and right arrow keys to move the ice cream cone. Catch falling ice cream scoops to stack them on your cone. Avoid non-ice cream objects (rocks, broccoli, soap)! If you catch 3 non-scoops, it's game over. Be careful! Don't miss too many scoops or you'll lose lives. Good luck!");
+            alert("Instructions: Use the left and right arrow keys to move the ice cream cone. Each level has exactly 10 ice cream scoops that will fall. Catch them to stack on your cone! Avoid non-ice cream objects (rocks, broccoli, soap)! If you catch 3 non-scoops, it's game over. Be careful! Don't miss too many scoops or you'll lose lives. Complete as many levels as you can - there's no limit! Good luck!");
         }
 
         function restartGame() {
             gameOverScreen.style.display = 'none';
             startGame();
         }
+        
+        function startCountdown(callback) {
+            // Ensure the game is completely paused during countdown
+            gameActive = false;
+            countdownActive = true;
+            countdownValue = 3;
+            countdownOverlay.textContent = countdownValue;
+            countdownOverlay.style.display = 'flex';
+            
+            // Clear any existing falling objects
+            scoops = [];
+            obstacles = [];
+            
+            // Used to update the visual countdown
+            const countInterval = setInterval(() => {
+                countdownValue--;
+                
+                if (countdownValue <= 0) {
+                    clearInterval(countInterval);
+                    countdownOverlay.style.display = 'none';
+                    countdownActive = false;
+                    
+                    // Make sure lastScoopTime and lastObstacleTime are reset to current time
+                    // This prevents immediate spawning of objects when the game resumes
+                    lastScoopTime = performance.now();
+                    lastObstacleTime = performance.now();
+                    
+                    // Only execute callback after countdown is fully complete
+                    if (callback) {
+                        callback();
+                        // Explicitly request the next animation frame to ensure game loop continues
+                        requestAnimationFrame(gameLoop);
+                    }
+                    return;
+                }
+                
+                countdownOverlay.textContent = countdownValue;
+            }, 1000);
+        }
 
         function endGame() {
-            gameActive = false;
-            finalScoreDisplay.textContent = `Score: ${score}`;
-            gameOverScreen.style.display = 'flex';
+            // Only end the game if we have proper failure conditions
+            if (caughtNonScoops >= 3 || lives <= 0) {
+                console.log("Game over - Valid end condition");
+                console.log(`Final state: Level ${level}, Non-scoops caught: ${caughtNonScoops}, Lives: ${lives}`);
+                
+                gameActive = false;
+                scoops = [];
+                obstacles = [];
+                finalScoreDisplay.textContent = `Score: ${score}`;
+                gameOverScreen.style.display = 'flex';
+            } else {
+                console.error("Game over was called without valid end conditions!");
+                console.error(`Current state: Level ${level}, Non-scoops caught: ${caughtNonScoops}, Lives: ${lives}`);
+                // Force the game to continue
+                gameActive = true;
+                requestAnimationFrame(gameLoop);
+            }
         }
 
         function updateScore() {
@@ -247,10 +370,11 @@
                 radius: 25,
                 flavor: randomFlavor.name,
                 color: randomFlavor.color,
-                speed: scoopSpeed + Math.random() * 1,
+                speed: scoopSpeed,
                 type: 'scoop'
             };
             scoops.push(scoop);
+            console.log(`Created scoop #${scoopsDropped} of ${totalScoopsPerLevel}`);
         }
         
         function createObstacle() {
@@ -262,7 +386,7 @@
                 name: randomObstacle.name,
                 color: randomObstacle.color,
                 shape: randomObstacle.shape,
-                speed: scoopSpeed + Math.random() * 1.5,
+                speed: scoopSpeed * 1.05, // Non-scoops move at 1.05x the speed of scoops
                 type: 'obstacle',
                 rotation: 0
             };
@@ -270,11 +394,11 @@
         }
 
         function drawCone() {
-            // Draw the cone
+            // Draw the cone (flipped vertically - point at bottom)
             ctx.beginPath();
-            ctx.moveTo(cone.x, cone.y);
-            ctx.lineTo(cone.x - cone.width / 2, cone.y + cone.height);
-            ctx.lineTo(cone.x + cone.width / 2, cone.y + cone.height);
+            ctx.moveTo(cone.x, cone.y + cone.height);
+            ctx.lineTo(cone.x - cone.width / 2, cone.y);
+            ctx.lineTo(cone.x + cone.width / 2, cone.y);
             ctx.closePath();
             ctx.fillStyle = '#D2691E';
             ctx.fill();
@@ -282,21 +406,21 @@
             ctx.lineWidth = 3;
             ctx.stroke();
 
-            // Draw waffle pattern on cone
+            // Draw waffle pattern on cone (flipped vertically)
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
-                ctx.moveTo(cone.x - cone.width / 2 + i * cone.width / 5, cone.y + cone.height);
-                ctx.lineTo(cone.x, cone.y + i * cone.height / 5);
+                ctx.moveTo(cone.x - cone.width / 2 + i * cone.width / 5, cone.y);
+                ctx.lineTo(cone.x, cone.y + cone.height - i * cone.height / 5);
             }
             for (let i = 0; i < 6; i++) {
-                ctx.moveTo(cone.x + cone.width / 2 - i * cone.width / 5, cone.y + cone.height);
-                ctx.lineTo(cone.x, cone.y + i * cone.height / 5);
+                ctx.moveTo(cone.x + cone.width / 2 - i * cone.width / 5, cone.y);
+                ctx.lineTo(cone.x, cone.y + cone.height - i * cone.height / 5);
             }
             ctx.strokeStyle = '#A0522D';
             ctx.lineWidth = 1;
             ctx.stroke();
 
-            // Draw stacked scoops
+            // Draw stacked scoops on top of flipped cone
             let stackY = cone.y - 10;
             for (let i = 0; i < cone.scoopStack.length; i++) {
                 const scoop = cone.scoopStack[i];
@@ -458,6 +582,11 @@
                 ctx.fill();
             }
             
+            // Display scoops count
+            ctx.font = '16px Arial';
+            ctx.fillStyle = 'white';
+            ctx.fillText(`Scoops: ${scoopsDropped}/${totalScoopsPerLevel}`, canvas.width / 2 - 50, 50);
+            
             // Draw non-scoop warning indicators
             ctx.font = '16px Arial';
             ctx.fillStyle = 'white';
@@ -524,7 +653,15 @@
         }
 
         function gameLoop(timestamp) {
-            if (!gameActive) return;
+            // Don't run the game loop if the game isn't active or countdown is in progress
+            if (!gameActive || countdownActive) return;
+            
+            // Update debug display
+            const debugInfo = `Level: ${level} (Unlimited)\nScoops: ${scoopsDropped}/${totalScoopsPerLevel}\nNon-scoops: ${caughtNonScoops}/3\nLives: ${lives}/3\nGame active: ${gameActive}\nObstacles: ${obstacles.length}\nScoops on screen: ${scoops.length}\nEnd conditions: ${lives <= 0 ? 'Lives=0' : ''} ${caughtNonScoops >= 3 ? 'NonScoops>=3' : ''}`;
+            debugDisplay.innerHTML = debugInfo.replace(/\n/g, '<br>');
+            
+            // For debugging in console
+            console.log(`Game state: Level ${level}, Scoops dropped: ${scoopsDropped}/${totalScoopsPerLevel}, Scoops remaining: ${scoops.length}, Non-scoops caught: ${caughtNonScoops}, Lives: ${lives}`);
             
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -540,14 +677,15 @@
                 cone.x += cone.speed;
             }
             
-            // Spawn new scoops
-            if (timestamp - lastScoopTime > scoopSpawnRate) {
+            // Spawn new scoops (only if we haven't dropped all 10 scoops for this level)
+            if (timestamp - lastScoopTime > scoopSpawnRate && scoopsDropped < totalScoopsPerLevel) {
                 createScoop();
+                scoopsDropped++;
                 lastScoopTime = timestamp;
             }
             
-            // Spawn new obstacles
-            if (timestamp - lastObstacleTime > obstacleSpawnRate) {
+            // Spawn new obstacles - but not too many when there are few scoops
+            if (timestamp - lastObstacleTime > obstacleSpawnRate && obstacles.length < 3) {
                 createObstacle();
                 lastObstacleTime = timestamp;
             }
@@ -568,28 +706,9 @@
                     cone.stackHeight += scoop.radius * 1.5;
                     scoops.splice(i, 1);
                     
-                    // Update score
-                    score += 10 * level;
+                    // Update score - each scoop worth exactly 10 points
+                    score += 10;
                     updateScore();
-                    
-                    // Check for level completion
-                    if (cone.scoopStack.length >= cone.maxScoops) {
-                        level++;
-                        updateLevel();
-                        scoopSpeed += 0.5;
-                        scoopSpawnRate = Math.max(300, scoopSpawnRate - 200);
-                        obstacleSpawnRate = Math.max(1000, obstacleSpawnRate - 300);
-                        
-                        // Reset cone stack for next level
-                        cone.scoopStack = [];
-                        cone.stackHeight = 0;
-                        
-                        // Reset non-scoop counter when leveling up
-                        caughtNonScoops = 0;
-                        
-                        // Show level up message
-                        alert(`Level ${level-1} complete! Moving to Level ${level}`);
-                    }
                     
                     // Continue to next scoop
                     continue;
@@ -604,6 +723,77 @@
                         endGame();
                         return;
                     }
+                }
+            }
+            
+            // Check for level completion - separate from scoop catching
+            // We have caught all required scoops OR all scoops have been dropped and none are left on screen
+            if (gameActive && lives > 0 && 
+                (cone.scoopStack.length >= cone.maxScoops || 
+                (scoopsDropped >= totalScoopsPerLevel && scoops.length === 0))) {
+                
+                console.log("Advancing to next level");
+                console.log(`Pre-level up state: Level ${level}, Scoops: ${cone.scoopStack.length}/${cone.maxScoops}, Dropped: ${scoopsDropped}/${totalScoopsPerLevel}, Remaining: ${scoops.length}`);
+                
+                // Temp variable to hold current level for message
+                const currentLevel = level;
+                
+                // Increment level
+                level++;
+                updateLevel();
+                
+                // Record this level completion in history
+                gameHistory.recordLevel();
+                
+                // Increase difficulty by 10%
+                scoopSpeed = scoopSpeed * 1.1; // 10% increase
+                scoopSpawnRate = Math.max(300, scoopSpawnRate - 200);
+                obstacleSpawnRate = Math.max(1000, obstacleSpawnRate - 300);
+                
+                // Reset for next level
+                cone.scoopStack = [];
+                cone.stackHeight = 0;
+                scoopsDropped = 0;
+                
+                // Reset cone position
+                cone.resetPosition();
+                
+                // Reset keys state
+                keys.reset();
+                
+                // Don't reset non-scoop counter between levels
+                // The game should end after catching 3 non-scoops total across all levels
+                
+                // Clear all moving objects immediately
+                scoops = [];
+                obstacles = [];
+                
+                // Show level complete message and start countdown for next level
+                try {
+                    // Fully pause game activity while showing level complete message
+                    gameActive = false;
+                    
+                    setTimeout(() => {
+                        alert(`Level ${currentLevel} complete! Moving to Level ${level}`);
+                        
+                        // Start countdown for next level
+                        // Reset position and clear objects before countdown
+                        cone.resetPosition();
+                        scoops = [];
+                        obstacles = [];
+                        
+                        startCountdown(() => {
+                            // Only resume game after countdown is complete
+                            console.log("Countdown complete, resuming game");
+                            gameActive = true;
+                            // Force restart the game loop
+                            requestAnimationFrame(gameLoop);
+                        });
+                    }, 100);
+                } catch (e) {
+                    console.error("Error in level-up alert:", e);
+                    // Just continue the game even if the alert fails
+                    gameActive = true;
                 }
             }
             
@@ -626,6 +816,7 @@
                     
                     // Check if game over from non-scoops
                     if (caughtNonScoops >= 3) {
+                        console.log("Game over from catching 3 non-scoops");
                         endGame();
                         return;
                     }
@@ -645,7 +836,17 @@
             drawFallingObjects();
             drawLives();
             
-            // Continue game loop
+            // Only two valid conditions should end the game:
+            // 1. Player loses all lives
+            // 2. Player catches 3 non-scoops
+            if (!gameActive && lives > 0 && caughtNonScoops < 3 && !countdownActive) {
+                console.log("CRITICAL ERROR: Game ended without valid conditions. Restarting loop.");
+                gameActive = true; // Force the game to continue
+            }
+            
+            // Continue game loop as long as game is active
+            // Always call the next animation frame at the end of the game loop
+            // The gameActive check at the beginning of gameLoop will prevent unnecessary updates
             requestAnimationFrame(gameLoop);
         }
 
