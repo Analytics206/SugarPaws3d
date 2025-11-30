@@ -102,7 +102,18 @@ sugarpaws3d/
 | CMS/Model Management | Headless CMS (e.g. Sanity, Strapi) (optional)    |
 | Hosting Upgrade    | Vercel, Netlify, or VPS with CI/CD                |
 | SEO & Analytics    | Next SEO, Google Analytics                        |
-```
+| Containerization  | Docker Desktop, Docker Compose                    |
+
+---
+
+## 🐳 Containerization (Phase 1)
+
+- Orchestration: Docker Compose v2
+- Runtime Images: `node:22-slim` (dev), `nginx:1.27-alpine` (prod)
+- Dev Service: `web` runs Next.js dev server on port 3000 with live reload
+- Prod Service: `web_prod` serves static export (`out/`) on port 8080 via Nginx
+- Host: Windows with Docker Desktop (WSL 2 backend recommended)
+
 ---
 
 ## ✅ Goals
@@ -112,14 +123,6 @@ sugarpaws3d/
 - Remain open to migration from GoDaddy to modern deployment platforms
 
 ---
-
-
-
-
----
-
-# -- MOVE THIS --
-# tech stack( current)
 
 ## ✅ Adjusted Plan: Static-Exported Next.js Site for GoDaddy
 ### 🔧 Updated Stack (Phase 1: Static Deployment)

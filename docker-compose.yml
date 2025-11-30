@@ -1,0 +1,26 @@
+services:
+  web:
+    build:
+      context: ./frontend
+      target: dev
+    image: sugarpaws3d-web-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=1
+      - WATCHPACK_POLLING=true
+      - NEXT_TELEMETRY_DISABLED=1
+    command: npm run dev
+
+  web_prod:
+    build:
+      context: ./frontend
+      target: runner
+    image: sugarpaws3d-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped

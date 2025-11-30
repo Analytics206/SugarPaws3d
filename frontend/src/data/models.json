@@ -1,0 +1,23 @@
+[
+  {
+    "slug": "sugarpaws-pup",
+    "name": "SugarPaws Pup",
+    "image": "/assets/images/sugarpaws_pup.png",
+    "description": "A playful pup character ready for 3D printing.",
+    "tags": ["pup", "character"]
+  },
+  {
+    "slug": "cherry-corgi",
+    "name": "Cherry Corgi",
+    "image": "/assets/images/CherryCorgi.PNG",
+    "description": "A cheerful corgi companion model.",
+    "tags": ["corgi", "pet"]
+  },
+  {
+    "slug": "sugarpaws-pup-2",
+    "name": "SugarPaws Pup 2",
+    "image": "/assets/images/sugar_paws_pup2.png",
+    "description": "An alternate pose of the SugarPaws Pup.",
+    "tags": ["pup", "variant"]
+  }
+]

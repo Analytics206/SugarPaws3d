@@ -21,6 +21,8 @@ data/
 
 # Docker
 **/data/
+!frontend/src/data/
+!frontend/src/data/models.json
 **/volumes/
 
 # VS Code

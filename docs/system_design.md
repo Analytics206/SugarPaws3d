@@ -75,6 +75,14 @@ User → Browser
 
 ---
 
+## 🐳 Containerization (Phase 1)
+
+- Frontend Dev: Node 22-slim container running Next.js dev server on port 3000.
+- Frontend Prod: Nginx serves static export (`out/`) on port 8080.
+- Orchestration: Docker Compose (`web` for dev, `web_prod` for production).
+
+---
+
 ## ✅ Summary
 
 - Minimal complexity for MVP launch
@@ -82,6 +90,3 @@ User → Browser
 - Modular design to integrate auth, payments, and CMS as needed
 
 ---
-
-
-
