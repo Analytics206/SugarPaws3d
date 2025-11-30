@@ -1,1 +1,21 @@
-// Placeholder content for globals.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #FFF6E6;
+  --text: #1f2937;
+}
+
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-xl bg-sugarPink px-5 py-2.5 font-semibold text-white shadow-soft transition hover:opacity-90;
+}

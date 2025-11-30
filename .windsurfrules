@@ -1,5 +1,6 @@
 # Project Structure & Architecture# General
-- You are a software engineer who specializes in JavaScript, Next.js, Tailwind CSS, and Three.js
+- All services should run in docker containers excepts MS SQL Server
+- You are a software engineer who specializes in JavaScript, Next.js, Tailwind CSS
 - You are a website developer who specializes in creating professional websites
 - SugarPaws3D is a platform for showcasing 3D models for 3D printing
 - Feature flags and configuration settings are in src/config
@@ -15,6 +16,22 @@
 - Do not create fake database connection strings or fake API connections
 - If you break a database connection string to database, roll back change and fix it
 - Do not create fake API responses
+
+## Technology Stack
+- Use Python 3.12-slim as the primary programming language for data science and machine learning
+- Use Docker and Docker Compose for containerization and orchestration
+- Use MongoDB for document storage
+- Use Neo4j for graph database representation
+- Use Qdrant for vector embeddings storage and semantic search
+- Use PyTorch for deep learning and embedding generation (with GPU support)
+- Use NumPy for numerical computing and array operations
+- Use Pandas for data manipulation and analysis
+- Use Prometheus and Grafana for system monitoring
+- Use latest React 18.2 for the web user interface
+- Use latest NEXT.js 15.1 for the web user interface
+- Use Node.js 22-slim
+- Use Tailwind CSS for styling
+- Web UI should be compatible with Chrome as a priority, then Firefox, then Edge, then Safari
 
 # Project Structure & Architecture
 - Follow Next.js patterns and use the App Router
@@ -46,6 +63,5 @@
 
 # Deployment
 - Configure next.config.js for static export
-- Use 'npm run build' followed by static export for deployment
-- Test static build locally before uploading to GoDaddy
+- Use 'npm run build' followed by static export for deployment in docker container
 - Correctly determine when to use server vs. client components in Next.js

@@ -37,47 +37,58 @@ The project is organized as follows:
 │   ├── tsconfig.json
 │   ├── package.json
 │   └── README.md
-'''
+```
 
 ## Getting Started
 
-```bash
-python -m venv venv
-source venv/bin/activate  # or .\venv\Scripts\activate on Windows
-```
-2. Use uv (a fast Python package manager, like Poetry or Pipenv)
-uv is a newer Python tool for dependency management, caching, and creating environments fast. If you're managing any Python tooling for this project (e.g., asset generation), uv can help.
 
-Install it:
-```bash
-pip install uv
-uv pip install -r requirements.txt
+## Windows (PowerShell):
+```powershell
+# Activate the virtual environmentdo
+1. ## Windows (PowerShell):
+  ```powershell
+  # if needed to rebuild .venv
+  Remove-Item -Recurse -Force .venv
+  # Run the setup script
+  python3.12 -m venv .venv
+  .\.venv\Scripts\Activate
+  python --version
+  python -m pip install -U pip
 
-```
+  # Activate the virtual environment
+  .\.venv\Scripts\Activate.ps1
+  pip install -r requirements.txt
+  python.exe -m pip install --upgrade pip
 
-To get started with the SugarPaws3D website, follow these steps:
-
-1. **Clone the repository**:
+   # or
    ```
    git clone https://github.com/Analytics206/SugarPaws3d.git
    ```
 
-2. **Navigate to the project directory**:
+2. Navigate to the repo root and then the frontend app:
    ```
    cd SugarPaws3d
+   cd frontend
    ```
 
-3. **Install dependencies**:
+3. Install Node dependencies:
    ```
    npm install
    ```
 
-4. **Run the development server**:
+4. Start the development server:
    ```
-   npm start
+   npm run dev
    ```
 
-5. **Open your browser** and navigate to `http://localhost:3000` to view the website.
+5. Open your browser at `http://localhost:3000`.
+
+For a static export (for GoDaddy hosting):
+
+```bash
+npm run build:static
+# Upload the generated out/ directory to your hosting
+```
 
 ## Contributing
 
