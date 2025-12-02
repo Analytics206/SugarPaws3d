@@ -80,6 +80,7 @@ User → Browser
 - Frontend Dev: Node 22-slim container running Next.js dev server on port 3000.
 - Frontend Prod: Nginx serves static export (`out/`) on port 8080.
 - Orchestration: Docker Compose (`web` for dev, `web_prod` for production).
+- Reverse Proxy: Nginx Proxy Manager (ports 80/443 public, 81 admin) backed by MariaDB. Use `http://web:3000` as the upstream on the shared Docker network `sugarpaws_net`.
 
 ---
 

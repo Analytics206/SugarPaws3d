@@ -113,6 +113,7 @@ sugarpaws3d/
 - Dev Service: `web` runs Next.js dev server on port 3000 with live reload
 - Prod Service: `web_prod` serves static export (`out/`) on port 8080 via Nginx
 - Host: Windows with Docker Desktop (WSL 2 backend recommended)
+- Reverse Proxy: Nginx Proxy Manager (admin UI on port 81; public 80/443). MariaDB-backed with named volumes (`npm_data`, `npm_letsencrypt`, `npm_db`). Upstream target for the app: `http://web:3000` on the shared `sugarpaws_net` network.
 
 ---
 

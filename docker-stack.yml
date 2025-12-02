@@ -1,0 +1,41 @@
+version: "3.9"
+
+networks:
+  sugarpaws_overlay:
+    driver: overlay
+
+volumes:
+  nginx_logs:
+  mongo_data:
+  neo4j_data:
+  qdrant_data:
+  prometheus_data:
+  grafana_data:
+
+services:
+  web:
+    image: sugarpaws3d-web:latest
+    networks:
+      - sugarpaws_overlay
+    ports:
+      - target: 80
+        published: 8080
+        protocol: tcp
+    volumes:
+      - nginx_logs:/var/log/nginx
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        order: stop-first

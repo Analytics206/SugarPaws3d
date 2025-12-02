@@ -14,9 +14,10 @@ export function generateStaticParams() {
   return (models as Model[]).map((m) => ({ slug: m.slug }));
 }
 
-export default function ModelDetail({ params }: { params: { slug: string } }) {
-  const model = (models as Model[]).find((m) => m.slug === params.slug);
-  if (!model) return notFound();
+export default async function ModelDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const model = (models as Model[]).find((m) => m.slug === slug);
+  if (!model) notFound();
 
   return (
     <article className="grid gap-6">

@@ -3,12 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --bg: #FFF6E6;
-  --text: #1f2937;
+  --bg: #8BCBF9;
+  --text: #FF6BA9;
 }
 
 html, body, #__next {
   height: 100%;
+  margin: 0;
 }
 
 body {
@@ -17,5 +18,68 @@ body {
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center rounded-xl bg-sugarPink px-5 py-2.5 font-semibold text-white shadow-soft transition hover:opacity-90;
+  @apply inline-flex items-center justify-center rounded-xl bg-sugarPink px-4 py-2 font-semibold text-white shadow-soft transition hover:opacity-90 active:opacity-80;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-xl border border-sugarPink px-4 py-2 font-semibold text-sugarPink bg-white/70 backdrop-blur shadow-soft transition hover:bg-white;
+}
+
+.marquee {
+  @apply relative w-full overflow-hidden whitespace-nowrap border-y border-berryBlue/20 bg-white/60 backdrop-blur;
+}
+
+.marquee-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 2rem;
+  will-change: transform;
+  animation: marquee linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-item {
+  @apply text-sm tracking-wide uppercase text-chocolate/70;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.hero-watermark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-watermark h1 {
+  font-size: clamp(3rem, 12vw, 12rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: #FF6BA9;
+  opacity: 0.08;
+}
+
+.stat-value {
+  font-weight: 900;
+  font-size: clamp(2.75rem, 8vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: #FF6BA9;
+}
+
+.stat-label {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.7);
 }

@@ -28,7 +28,7 @@
 - Use Pandas for data manipulation and analysis
 - Use Prometheus and Grafana for system monitoring
 - Use latest React 18.2 for the web user interface
-- Use latest NEXT.js 15.1 for the web user interface
+- Use latest NEXT.js 15.4 for the web user interface
 - Use Node.js 22-slim
 - Use Tailwind CSS for styling
 - Web UI should be compatible with Chrome as a priority, then Firefox, then Edge, then Safari

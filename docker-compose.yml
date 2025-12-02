@@ -8,19 +8,61 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      - web_node_modules:/app/node_modules
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=1
       - WATCHPACK_POLLING=true
       - NEXT_TELEMETRY_DISABLED=1
     command: npm run dev
+    networks:
+      - sugarpaws_net
 
-  web_prod:
-    build:
-      context: ./frontend
-      target: runner
-    image: sugarpaws3d-web
-    ports:
-      - "8080:80"
+  nginx-db:
+    image: mariadb:12.1
     restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: npm_root_pw
+      MYSQL_DATABASE: npm
+      MYSQL_USER: npm
+      MYSQL_PASSWORD: npm_pw
+    volumes:
+      - npm_db:/var/lib/mysql
+    networks:
+      - sugarpaws_net
+
+  nginx-proxy:
+    image: jc21/nginx-proxy-manager:2.13.5
+    restart: unless-stopped
+    depends_on:
+      - nginx-db
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    environment:
+      DB_MYSQL_HOST: nginx-db
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: npm
+      DB_MYSQL_PASSWORD: npm_pw
+      DB_MYSQL_NAME: npm
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    networks:
+      - sugarpaws_net
+
+networks:
+  sugarpaws_net:
+    name: sugarpaws_net
+
+volumes:
+  web_node_modules:
+  npm_data:
+  npm_letsencrypt:
+  npm_db:
+  mongo_data:
+  neo4j_data:
+  qdrant_data:
+  prometheus_data:
+  grafana_data:

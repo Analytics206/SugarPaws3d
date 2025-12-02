@@ -23,7 +23,7 @@
   },
   "boxShadow": {
     "soft": "0 4px 14px 0 rgba(0, 0, 0, 0.1)",
-    "candy": "0 8px 30px rgba(255, 107, 169, 0.2)"
+    "candy": "0 8px 30px rgba(139, 203, 249, 0.2)"
   },
   "fontFamily": {
     "heading": ["Fredoka One", "Baloo 2", "system-ui"],
